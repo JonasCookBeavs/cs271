@@ -73,12 +73,8 @@ char *welcome(char* hello, char* name) {
  * returns: nothing. result contains the reversed string.
  */
 void reverse(char* txt, char* result) {
-	 int i = 0;
-	 while(txt[i] != '\0'){
-		result[i] = txt[i];
-		i++;
-	 }	 	 
-
+	
+	strcpy(result, txt);
 	char temp[length(result)];
 
     int tempSize = -1;
@@ -148,9 +144,20 @@ int vowels(char* txt) {
  */
 int quartile(char* name) {
 
-	/* REPLACE WITH YOUR CODE */
+	char firstLetter = tolower(name[0]);
+	if(firstLetter == 'a' || firstLetter == 'b' || firstLetter == 'c' || firstLetter == 'd' || firstLetter == 'e' || firstLetter == 'f'){
+		return 1;
+	}
+	if(firstLetter == 'g' || firstLetter == 'h' || firstLetter == 'i' || firstLetter == 'j' || firstLetter == 'k' || firstLetter == 'l'){
+		return 2;
+	}
+	if(firstLetter == 'm' || firstLetter == 'n' || firstLetter == 'o' || firstLetter == 'p' || firstLetter == 'q' || firstLetter == 'r'){
+		return 3;
+	}
+	if(firstLetter == 's' || firstLetter == 't' || firstLetter == 'u' || firstLetter == 'v' || firstLetter == 'w' || firstLetter == 'x' || firstLetter == 'y' || firstLetter == 'z'){
+		return 4;
+	}
 	
-	return -1; // <==fix!
 }
 
 
