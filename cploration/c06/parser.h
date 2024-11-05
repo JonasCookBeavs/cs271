@@ -16,12 +16,6 @@
 /** function prototypes **/
 char *strip(char *s);
 
-void parse(FILE * file);
-
-bool is_Atype(const char *);
-bool is_label(const char *);
-bool is_Ctype(const char *);
-
 typedef int16_t hack_addr;
 typedef int16_t opcode;
 
@@ -29,29 +23,36 @@ char *extract_label(const char *, char*);
 
 enum instr_type {
 	INVALID_INSTRUCTION = -1,
-	A-TYPE_INSTRUCTION,
-	C-TYPE_INSTRUCTION
-}
+	ATYPE_INSTRUCTION,
+	CTYPE_INSTRUCTION,
+};
 
 typedef struct c_instruction {
 	opcode a:1;
 	opcode comp:6;
 	opcode dest:3;
 	opcode jump:3;
-}
+} c_instruction;
 
 typedef struct a_instruction {
-	union {
-		hack_addr address,
+	union type{
+		hack_addr address;
 		char * label;
-	}
+	};
 	bool is_addr;
-}
+} a_instruction;
 
-struct instruction {
-	union {
-		a_instruction,
+typedef struct instruction {
+	union isntr{
+		a_instruction;
 		c_instruction;
-	}
-	instr_type type;
-}
+	};
+	enum instr_type type;
+} instruction;
+
+void parse(FILE * file);
+
+bool is_Atype(const char *);
+bool is_label(const char *);
+bool is_Ctype(const char *);
+
