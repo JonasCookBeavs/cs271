@@ -33,4 +33,41 @@ CHIP CPU {
 
     PARTS:
 	//// Replace this comment with your code.
+    Not(in= instruction[15], out= AInstruction);
+    Not(in= AInstruction, out= CInstruction);
+
+    //And statement checks if we need to route to A Register
+    //Mux decides if we are going to the A Register
+    And(a= CInstruction, b= instruction[5], out= ALUToA);
+    Mux16(a= instruction, b= ALUOutput, sel= ALUToA, out= ARegisterIn);
+
+    Or(a= AInstruction, b= ALUToA, out= LoadA);
+    ARegister(in= ARegisterIn, load= LoadA, out= ARegisterOut);
+
+    Mux16(a= ARegisterOut, b= inM, sel= instruction[12], out= AMOut);
+
+    And(a= CInstruction, b= instruction[4], out= LoadD);
+    DRegister(in= ALUOutput, load= LoadD, out= DRegisterOut);
+
+    ALU(x= DRegisterOut, y= AMOut, zx= instruction[11], nx= instruction[10], zy= instruction[9], ny= instruction[8], f= instruction[7], no= instruction[6], out= ALUOutput, zr= ZROut, ng= NGOut);
+
+    Or16(a= ARegisterOut, b= false, out[0..14]=addressM);
+    Or16(a= ALUOutput, b= false, out= outM);
+    And(a= instruction[3], b= CInstruction, out= writeM);
+    
+    //Testing for jumps
+    And(a= ZROut, b= instruction[1], out= JEQ);
+    And(a= NGOut, b= instruction[2], out= JLT);
+    
+    Or(a= ZROut, b= NGOut, out= ZeroOrNeg);
+    Not(in= ZeroOrNeg, out= Positive);
+    And(a= Positive, b= instruction[0], out= JGT);
+
+    Or(a= JEQ, b= JLT, out= JLE);
+    Or(a= JLE, b= JGT, out= JumpToA);
+
+    And(a= JumpToA, b= CInstruction, out= PCLoad);
+    Not(in= PCLoad, out= PCInc);
+    
+    PC(in= ARegisterOut, load= PCLoad, inc= PCInc, reset= reset, out[0..14]=pc);
 }
