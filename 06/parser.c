@@ -233,13 +233,15 @@ void assemble(const char * file_name, instruction* instructions, int num_instruc
 					op = sym->addr;
 				}
 				free((void *)instructions[i].instr.a.type.label);
+				printf("ATYPE: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
 			}
 		} else if(instructions[i].type == CTYPE_INSTRUCTION){
-			//printf("%d\n", instruction_to_opcode(instructions[i].instr.c));
+			printf("This gets sent to OPCODE_TO_BINARY: %d\n", instruction_to_opcode(instructions[i].instr.c));
+			printf("This recieves from OPCODE_TO_BINARY: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
 			instruction_to_opcode(instructions[i].instr.c);
 		}
 		//printf("%c", op);
-		printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
+		
 		fprintf(fout, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
 	}
 	fclose(fout);
