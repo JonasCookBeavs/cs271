@@ -42,11 +42,6 @@ void symtable_insert(char* name, hack_addr addr) {
 }
 
 struct Symbol* symtable_find(char* key){
-	//for(int i = 0; i < SYMBOL_TABLE_SIZE; i++){
-	//	if(hashArray[i] != NULL && strcmp(key, hashArray[i]->name) == 0){
-	//		return hashArray[i];
-	//	}
-	//}
 	int hashIndex = hash(key);
 	
 	while(hashArray[hashIndex] != NULL){

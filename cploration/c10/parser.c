@@ -75,9 +75,9 @@ int parse(FILE * file, instruction *instructions){
 			}
 			instr.type = ATYPE_INSTRUCTION;
 			if(instr.instr.a.is_addr){				
-				printf("A: %d\n", instr.instr.a.type.address);
+				//printf("A: %d\n", instr.instr.a.type.address);
 			} else{
-				printf("A: %s\n", instr.instr.a.type.label);
+				//printf("A: %s\n", instr.instr.a.type.label);
 			}
 		}
 		else if(is_Ctype(line)){
@@ -96,7 +96,7 @@ int parse(FILE * file, instruction *instructions){
 				exit_program(EXIT_INVALID_C_JUMP, line_num, line);
 			}
 			
-			printf("C: d=%d, c=%d, j=%d\n", instr.instr.c.dest, instr.instr.c.comp, instr.instr.c.jump);
+			//printf("C: d=%d, c=%d, j=%d\n", instr.instr.c.dest, instr.instr.c.comp, instr.instr.c.jump);
 
 		}
 		else if(is_label(line)){
@@ -142,13 +142,6 @@ bool is_label(const char *line){
 }
 
 char *extract_label(const char *line, char* label){
-	//int i = 0;
-	//while (line[i] != ')'){
-	//	i++;
-	//}
-	//strncpy(label, line+1, i-1);
-	//label[i-1] = '\0';
-	//return label;
 	int i = 0;
 	for (const char *s = line; *s; s++){
 		if (*s== '(' || *s== ')'){
@@ -180,8 +173,6 @@ bool parse_A_instruction(const char *line, a_instruction *instr){
         instr->type.label = (char*)malloc(strlen(line));
         strcpy(instr->type.label, s);
         instr->is_addr = false;
-        //printf("str %s\n", instr->operand.label);    
-    //}else if (errno == 0 && *s_end != 0){
     }else if (*s_end != 0){
         return false;
     }else{
@@ -213,6 +204,52 @@ void parse_C_instruction(char *line, c_instruction *instr, int line_num){
 	instr->dest = dest ? str_to_destid(dest) : DEST_NULL;
 	instr->comp = str_to_compid(comp, &a);
 	instr->a = a;
+}
+
+void assemble(const char * file_name, instruction* instructions, int num_instructions){
+	const char* suffix = ".hack";
+    FILE* fin = fopen(file_name, "r");
+    size_t len = strlen(file_name) + strlen(suffix) + 1;
+    char* output_file_name = malloc(len * sizeof(char)); 
+    strcpy(output_file_name, file_name);
+    strcat(output_file_name, suffix);
+    FILE* fout = fopen(output_file_name,"w");
 	
-	
+	int i = 0;
+	opcode op = 0;
+	int newOPCode = 16;
+	for (i = 0; i < num_instructions; i++){
+		if(instructions[i].type == ATYPE_INSTRUCTION){
+			if(instructions[i].instr.a.is_addr == true){
+				op = instructions[i].instr.a.type.address;
+				
+			}
+			if(instructions[i].instr.a.is_addr == false){
+				if(symtable_find(instructions[i].instr.a.type.label) == NULL){
+					symtable_insert(instructions[i].instr.a.type.label, newOPCode);
+					op = newOPCode;
+					newOPCode++;
+				} else{
+					struct Symbol* sym = symtable_find(instructions[i].instr.a.type.label);
+					op = sym->addr;
+				}
+				free(instructions[i].instr.a.type.label);
+			}
+		} else if(instructions[i].type == CTYPE_INSTRUCTION){
+			instruction_to_opcode(instructions[i].instr.c);
+		}
+		fprintf(fout, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
+	}
+	fclose(fin);
+	fclose(fout);
+}
+
+opcode instruction_to_opcode(c_instruction instr){
+	opcode op = 0;
+	op |= (7 << 13);
+	op |= (instr.a << 12);
+	op |= (instr.comp << 6);
+	op |= (instr.dest << 3);
+	op |= (instr.jump << 0);
+	return op;
 }
