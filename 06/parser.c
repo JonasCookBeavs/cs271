@@ -224,15 +224,17 @@ void assemble(const char * file_name, instruction* instructions, int num_instruc
 				op = instructions[i].instr.a.type.address;				
 			}
 			else if(instructions[i].instr.a.is_addr == false){
+				struct Symbol* sym = symtable_find(instructions[i].instr.a.type.label);
 				if(symtable_find(instructions[i].instr.a.type.label) == NULL){
 					symtable_insert(instructions[i].instr.a.type.label, new);
-					op = new;
 					new++;
+					sym = symtable_find(instructions[i].instr.a.type.label);
+					op = sym->addr;
 				} else{
-					struct Symbol* sym = symtable_find(instructions[i].instr.a.type.label);
+					
 					op = sym->addr;
 				}
-				free((void *)instructions[i].instr.a.type.label);
+				//free((void *)instructions[i].instr.a.type.label);
 				printf("ATYPE: %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
 			}
 		} else if(instructions[i].type == CTYPE_INSTRUCTION){
