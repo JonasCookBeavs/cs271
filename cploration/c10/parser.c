@@ -161,7 +161,7 @@ void add_predefined_smybols(){
 }
 
 bool parse_A_instruction(const char *line, a_instruction *instr){
-    char *s = (char*)malloc(strlen(line));
+    char *s = malloc(strlen(line)*sizeof(line));
     strcpy(s, line+1);
     char *s_end = NULL;
     
@@ -217,31 +217,34 @@ void assemble(const char * file_name, instruction* instructions, int num_instruc
 	
 	int i = 0;
 	opcode op = 0;
-	int newOPCode = 16;
+	int new = 16;
 	for (i = 0; i < num_instructions; i++){
 		if(instructions[i].type == ATYPE_INSTRUCTION){
 			if(instructions[i].instr.a.is_addr == true){
-				op = instructions[i].instr.a.type.address;
-				
+				op = instructions[i].instr.a.type.address;				
 			}
-			if(instructions[i].instr.a.is_addr == false){
+			else if(instructions[i].instr.a.is_addr == false){
 				if(symtable_find(instructions[i].instr.a.type.label) == NULL){
-					symtable_insert(instructions[i].instr.a.type.label, newOPCode);
-					op = newOPCode;
-					newOPCode++;
+					symtable_insert(instructions[i].instr.a.type.label, new);
+					op = new;
+					new++;
 				} else{
 					struct Symbol* sym = symtable_find(instructions[i].instr.a.type.label);
 					op = sym->addr;
 				}
-				free(instructions[i].instr.a.type.label);
+				free((void *)instructions[i].instr.a.type.label);
 			}
 		} else if(instructions[i].type == CTYPE_INSTRUCTION){
+			//printf("%d\n", instruction_to_opcode(instructions[i].instr.c));
 			instruction_to_opcode(instructions[i].instr.c);
 		}
+		//printf("%c", op);
+		printf("%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
 		fprintf(fout, "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n", OPCODE_TO_BINARY(op));
 	}
-	fclose(fin);
 	fclose(fout);
+	fclose(fin);
+	
 }
 
 opcode instruction_to_opcode(c_instruction instr){
