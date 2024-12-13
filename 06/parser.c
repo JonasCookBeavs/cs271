@@ -229,7 +229,7 @@ void assemble(const char * file_name, instruction* instructions, int num_instruc
 					symtable_insert(instructions[i].instr.a.type.label, new);
 					new++;
 					sym = symtable_find(instructions[i].instr.a.type.label);
-					op = sym->addr;
+					op = new;
 				} else{
 					
 					op = sym->addr;
